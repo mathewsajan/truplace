@@ -168,12 +168,12 @@ const EmailVerificationModal: React.FC<EmailVerificationModalProps> = ({ isOpen,
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email address"
                     disabled={isLoading}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
-                      isValid === false 
-                        ? 'border-red-300 bg-red-50' 
-                        : isValid === true 
-                        ? 'border-green-300 bg-green-50' 
-                        : 'border-gray-300'
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 placeholder-gray-400 ${
+                      isValid === false
+                        ? 'border-red-300 bg-red-50'
+                        : isValid === true
+                        ? 'border-green-300 bg-green-50'
+                        : 'border-gray-300 bg-white'
                     }`}
                     aria-describedby={errorMessage ? 'email-error' : undefined}
                   />
