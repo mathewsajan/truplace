@@ -254,9 +254,10 @@ const Header = () => {
       </div>
       </header>
 
-      <EmailVerificationModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+      <EmailVerificationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        isAdminMode={false}
       />
     </>
   );

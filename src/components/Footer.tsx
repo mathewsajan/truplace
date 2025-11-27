@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Search, Twitter, Facebook, Linkedin, Instagram } from 'lucide-react';
+import EmailVerificationModal from './EmailVerificationModal';
 
 const Footer = () => {
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+
   return (
     <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -102,6 +105,14 @@ const Footer = () => {
                   Cookie Policy
                 </a>
               </li>
+              <li>
+                <button
+                  onClick={() => setIsAdminModalOpen(true)}
+                  className="text-gray-400 hover:text-gray-300 transition-colors duration-200 text-sm"
+                >
+                  Admin
+                </button>
+              </li>
             </ul>
           </div>
         </div>
@@ -121,6 +132,12 @@ const Footer = () => {
           </div>
         </div>
       </div>
+
+      <EmailVerificationModal
+        isOpen={isAdminModalOpen}
+        onClose={() => setIsAdminModalOpen(false)}
+        isAdminMode={true}
+      />
     </footer>
   );
 };

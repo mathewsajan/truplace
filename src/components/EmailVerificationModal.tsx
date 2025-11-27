@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { X, Mail, CheckCircle, AlertCircle, Lock } from 'lucide-react';
+import { X, Mail, CheckCircle, AlertCircle, Lock, Shield } from 'lucide-react';
 import { sendMagicLink } from '../lib/supabase';
 
 interface EmailVerificationModalProps {
   isOpen: boolean;
   onClose: () => void;
+  isAdminMode?: boolean;
 }
 
-const EmailVerificationModal: React.FC<EmailVerificationModalProps> = ({ isOpen, onClose }) => {
+const EmailVerificationModal: React.FC<EmailVerificationModalProps> = ({ isOpen, onClose, isAdminMode = false }) => {
   const [email, setEmail] = useState('');
   const [isValid, setIsValid] = useState<boolean | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
@@ -19,9 +20,10 @@ const EmailVerificationModal: React.FC<EmailVerificationModalProps> = ({ isOpen,
 
   useEffect(() => {
     if (isOpen && isTestingMode) {
-      window.location.href = '/submit-review';
+      const redirectUrl = isAdminMode ? '/admin/company-requests' : '/submit-review';
+      window.location.href = redirectUrl;
     }
-  }, [isOpen, isTestingMode]);
+  }, [isOpen, isTestingMode, isAdminMode]);
 
   const blockedDomains = [
     'gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'aol.com',
@@ -129,7 +131,11 @@ const EmailVerificationModal: React.FC<EmailVerificationModalProps> = ({ isOpen,
           <div className="flex justify-center mb-4">
             <div className="relative">
               <div className="w-16 h-16 bg-gradient-to-r from-blue-100 to-green-100 rounded-full flex items-center justify-center">
-                <Mail className="w-8 h-8 text-blue-600" />
+                {isAdminMode ? (
+                  <Shield className="w-8 h-8 text-blue-600" />
+                ) : (
+                  <Mail className="w-8 h-8 text-blue-600" />
+                )}
               </div>
               <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
                 <CheckCircle className="w-4 h-4 text-white" />
@@ -139,11 +145,13 @@ const EmailVerificationModal: React.FC<EmailVerificationModalProps> = ({ isOpen,
 
           {/* Title and Description */}
           <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">
-            Verify Your Email
+            {isAdminMode ? 'Admin Login' : 'Verify Your Email'}
           </h2>
           <p className="text-gray-600 text-center leading-relaxed">
-            To keep reviews authentic and anonymous, please verify your email.
-            We'll send you a secure magic link for instant access.
+            {isAdminMode
+              ? "Enter your admin email to receive a secure magic link for instant access to the admin dashboard."
+              : "To keep reviews authentic and anonymous, please verify your email. We'll send you a secure magic link for instant access."
+            }
           </p>
         </div>
 
@@ -217,7 +225,10 @@ const EmailVerificationModal: React.FC<EmailVerificationModalProps> = ({ isOpen,
                 Magic Link Sent!
               </h3>
               <p className="text-gray-600">
-                Check your email to continue. The link will expire in 15 minutes.
+                {isAdminMode
+                  ? "Check your email for the admin login link. It will expire in 15 minutes."
+                  : "Check your email to continue. The link will expire in 15 minutes."
+                }
               </p>
             </div>
           )}
