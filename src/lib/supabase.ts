@@ -564,6 +564,11 @@ export const isAdmin = async (): Promise<boolean> => {
     const user = await getCurrentUser();
     if (!user) return false;
 
+    // In testing mode, test user is always admin
+    if (import.meta.env.VITE_DISABLE_AUTH_FOR_TESTING === 'true' && user.id === '00000000-0000-0000-0000-000000000001') {
+      return true;
+    }
+
     const { data, error } = await supabase
       .from('admin_users')
       .select('id')

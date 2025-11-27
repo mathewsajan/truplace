@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Search, Edit, User, LogOut, ChevronDown } from 'lucide-react';
+import { Menu, X, Search, Edit, User, LogOut, ChevronDown, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { getCurrentUser, supabase } from '../lib/supabase';
+import { getCurrentUser, supabase, isAdmin } from '../lib/supabase';
 import EmailVerificationModal from './EmailVerificationModal';
 
 const Header = () => {
@@ -11,6 +11,7 @@ const Header = () => {
   const [user, setUser] = useState<any>(null);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [userIsAdmin, setUserIsAdmin] = useState(false);
 
   useEffect(() => {
     checkAuthStatus();
@@ -35,8 +36,16 @@ const Header = () => {
     try {
       const currentUser = await getCurrentUser();
       setUser(currentUser);
+
+      if (currentUser) {
+        const adminStatus = await isAdmin();
+        setUserIsAdmin(adminStatus);
+      } else {
+        setUserIsAdmin(false);
+      }
     } catch (error) {
       setUser(null);
+      setUserIsAdmin(false);
     } finally {
       setIsLoading(false);
     }
@@ -106,6 +115,12 @@ const Header = () => {
             <a href="/about" className="text-gray-600 hover:text-gray-900 transition-colors duration-200">
               About
             </a>
+            {userIsAdmin && (
+              <a href="/admin/company-requests" className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200">
+                <Shield className="w-4 h-4" />
+                <span>Admin</span>
+              </a>
+            )}
           </nav>
 
           {/* CTA Button & User Menu */}
@@ -135,7 +150,22 @@ const Header = () => {
                     <div className="px-4 py-3 border-b border-gray-200">
                       <p className="text-xs text-gray-500">Signed in as</p>
                       <p className="text-sm font-medium text-gray-900 truncate">{getUserEmail()}</p>
+                      {userIsAdmin && (
+                        <span className="inline-flex items-center space-x-1 px-2 py-0.5 mt-1 bg-blue-100 text-blue-700 text-xs font-medium rounded">
+                          <Shield className="w-3 h-3" />
+                          <span>Admin</span>
+                        </span>
+                      )}
                     </div>
+                    {userIsAdmin && (
+                      <a
+                        href="/admin/company-requests"
+                        className="w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 flex items-center space-x-2 transition-colors duration-200"
+                      >
+                        <Shield className="w-4 h-4" />
+                        <span>Admin Dashboard</span>
+                      </a>
+                    )}
                     <button
                       onClick={handleLogout}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2 transition-colors duration-200"
@@ -175,6 +205,12 @@ const Header = () => {
               <a href="/about" className="text-gray-600 hover:text-gray-900 transition-colors duration-200">
                 About
               </a>
+              {userIsAdmin && (
+                <a href="/admin/company-requests" className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200">
+                  <Shield className="w-4 h-4" />
+                  <span>Admin Dashboard</span>
+                </a>
+              )}
               <button
                 onClick={handleWriteReviewClick}
                 className="bg-gradient-to-r from-blue-600 to-green-500 text-white px-6 py-2 rounded-lg font-medium hover:shadow-lg transition-all duration-300 flex items-center justify-center space-x-2 w-full"
