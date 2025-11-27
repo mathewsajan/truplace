@@ -128,9 +128,13 @@ const AdminCompanyRequestsPage = () => {
     setRejectModalOpen(true);
   };
 
-  const handleConfirmApprove = async (requestId: string, adminNotes?: string) => {
+  const handleConfirmApprove = async (
+    requestId: string,
+    adminNotes?: string,
+    editedDetails?: any
+  ) => {
     try {
-      await approveCompanyRequest(requestId, adminNotes);
+      await approveCompanyRequest(requestId, adminNotes, editedDetails);
       toast?.addToast('Company request approved successfully', 'success');
       await fetchRequests();
     } catch (error) {

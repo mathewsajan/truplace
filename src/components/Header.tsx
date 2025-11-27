@@ -116,10 +116,16 @@ const Header = () => {
               About
             </a>
             {userIsAdmin && (
-              <a href="/admin/company-requests" className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200">
-                <Shield className="w-4 h-4" />
-                <span>Admin</span>
-              </a>
+              <div className="flex items-center space-x-4">
+                <a href="/admin/company-requests" className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200">
+                  <Shield className="w-4 h-4" />
+                  <span>Requests</span>
+                </a>
+                <a href="/admin/companies" className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200">
+                  <Shield className="w-4 h-4" />
+                  <span>Companies</span>
+                </a>
+              </div>
             )}
           </nav>
 
@@ -158,13 +164,22 @@ const Header = () => {
                       )}
                     </div>
                     {userIsAdmin && (
-                      <a
-                        href="/admin/company-requests"
-                        className="w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 flex items-center space-x-2 transition-colors duration-200"
-                      >
-                        <Shield className="w-4 h-4" />
-                        <span>Admin Dashboard</span>
-                      </a>
+                      <>
+                        <a
+                          href="/admin/company-requests"
+                          className="w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 flex items-center space-x-2 transition-colors duration-200"
+                        >
+                          <Shield className="w-4 h-4" />
+                          <span>Company Requests</span>
+                        </a>
+                        <a
+                          href="/admin/companies"
+                          className="w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 flex items-center space-x-2 transition-colors duration-200"
+                        >
+                          <Shield className="w-4 h-4" />
+                          <span>Manage Companies</span>
+                        </a>
+                      </>
                     )}
                     <button
                       onClick={handleLogout}
@@ -206,10 +221,16 @@ const Header = () => {
                 About
               </a>
               {userIsAdmin && (
-                <a href="/admin/company-requests" className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200">
-                  <Shield className="w-4 h-4" />
-                  <span>Admin Dashboard</span>
-                </a>
+                <>
+                  <a href="/admin/company-requests" className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200">
+                    <Shield className="w-4 h-4" />
+                    <span>Company Requests</span>
+                  </a>
+                  <a href="/admin/companies" className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200">
+                    <Shield className="w-4 h-4" />
+                    <span>Manage Companies</span>
+                  </a>
+                </>
               )}
               <button
                 onClick={handleWriteReviewClick}

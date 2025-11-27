@@ -13,6 +13,7 @@ const CompanyProfilePage = lazy(() => import('./pages/CompanyProfilePage'));
 const RequestCompanyPage = lazy(() => import('./pages/RequestCompanyPage'));
 const CompanyRequestedPage = lazy(() => import('./pages/CompanyRequestedPage'));
 const AdminCompanyRequestsPage = lazy(() => import('./pages/AdminCompanyRequestsPage'));
+const AdminCompaniesPage = lazy(() => import('./pages/AdminCompaniesPage'));
 const NotificationPage = lazy(() => import('./pages/NotificationPage'));
 
 export const ToastContext = React.createContext<ReturnType<typeof useToast> | null>(null);
@@ -40,6 +41,7 @@ function App() {
                 <Route path="/request-company" element={<RequestCompanyPage />} />
                 <Route path="/company-requested" element={<CompanyRequestedPage />} />
                 <Route path="/admin/company-requests" element={<AdminCompanyRequestsPage />} />
+                <Route path="/admin/companies" element={<AdminCompaniesPage />} />
                 <Route path="/notification/:token" element={<NotificationPage />} />
                 <Route path="/company/:companyId" element={<CompanyProfilePage />} />
                 <Route path="/companies" element={<CompaniesPage />} />

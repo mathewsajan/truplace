@@ -271,6 +271,29 @@ export const createCompany = async (companyData: {
   return data as Company;
 };
 
+export const updateCompany = async (
+  companyId: string,
+  updates: {
+    name?: string;
+    industry?: string;
+    size?: string;
+    logo_url?: string;
+  }
+) => {
+  const { data, error } = await supabase
+    .from('companies')
+    .update({
+      ...updates,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', companyId)
+    .select()
+    .maybeSingle();
+
+  if (error) throw error;
+  return data as Company;
+};
+
 // Utility function to validate company domain
 export const validateCompanyDomain = (email: string, companyName: string): boolean => {
   const domain = email.split('@')[1]?.toLowerCase();
@@ -431,17 +454,38 @@ export const updateCompanyRequestStatus = async (
   return data as CompanyRequest;
 };
 
-export const approveCompanyRequest = async (requestId: string, adminNotes?: string) => {
+export interface EditedCompanyDetails {
+  company_name: string;
+  company_website: string;
+  email_domains: string[];
+  industry: string;
+  company_size: string;
+}
+
+export const approveCompanyRequest = async (
+  requestId: string,
+  adminNotes?: string,
+  editedDetails?: EditedCompanyDetails
+) => {
   // First update the request status
   const request = await updateCompanyRequestStatus(requestId, 'approved', adminNotes);
+
+  // Use edited details if provided, otherwise use original request data
+  const companyData = editedDetails || {
+    company_name: request.company_name,
+    company_website: request.company_website,
+    email_domains: request.email_domains,
+    industry: request.industry,
+    company_size: request.company_size
+  };
 
   // Create the company
   const { data: company, error: companyError } = await supabase
     .from('companies')
     .insert({
-      name: request.company_name,
-      industry: request.industry,
-      size: request.company_size,
+      name: companyData.company_name,
+      industry: companyData.industry,
+      size: companyData.company_size,
       source: 'user_request',
       request_id: requestId,
     })

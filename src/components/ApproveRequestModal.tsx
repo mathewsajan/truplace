@@ -1,12 +1,22 @@
-import React, { useState } from 'react';
-import { X, CheckCircle, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, CheckCircle, AlertCircle, Edit2 } from 'lucide-react';
 import { CompanyRequest } from '../lib/supabase';
+import IndustrySelect from './IndustrySelect';
+import DomainInput from './DomainInput';
+
+interface EditedCompanyDetails {
+  company_name: string;
+  company_website: string;
+  email_domains: string[];
+  industry: string;
+  company_size: string;
+}
 
 interface ApproveRequestModalProps {
   request: CompanyRequest | null;
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (requestId: string, adminNotes?: string) => Promise<void>;
+  onConfirm: (requestId: string, adminNotes?: string, editedDetails?: EditedCompanyDetails) => Promise<void>;
 }
 
 const ApproveRequestModal: React.FC<ApproveRequestModalProps> = ({
@@ -18,16 +28,48 @@ const ApproveRequestModal: React.FC<ApproveRequestModalProps> = ({
   const [adminNotes, setAdminNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedDetails, setEditedDetails] = useState<EditedCompanyDetails | null>(null);
 
-  if (!isOpen || !request) return null;
+  const companySizes = [
+    { value: '1-50 employees', label: 'Startup/Small (1-50 employees)' },
+    { value: '51-200 employees', label: 'Medium (51-200 employees)' },
+    { value: '201-1000 employees', label: 'Large (201-1000 employees)' },
+    { value: '1000+ employees', label: 'Enterprise (1000+ employees)' }
+  ];
+
+  useEffect(() => {
+    if (request && isOpen) {
+      setEditedDetails({
+        company_name: request.company_name,
+        company_website: request.company_website,
+        email_domains: request.email_domains,
+        industry: request.industry,
+        company_size: request.company_size
+      });
+    }
+  }, [request, isOpen]);
+
+  if (!isOpen || !request || !editedDetails) return null;
 
   const handleConfirm = async () => {
     setError(null);
     setIsSubmitting(true);
 
     try {
-      await onConfirm(request.id, adminNotes.trim() || undefined);
+      const hasChanges = editedDetails.company_name !== request.company_name ||
+        editedDetails.company_website !== request.company_website ||
+        editedDetails.industry !== request.industry ||
+        editedDetails.company_size !== request.company_size ||
+        JSON.stringify(editedDetails.email_domains) !== JSON.stringify(request.email_domains);
+
+      await onConfirm(
+        request.id,
+        adminNotes.trim() || undefined,
+        hasChanges ? editedDetails : undefined
+      );
       setAdminNotes('');
+      setIsEditing(false);
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to approve request');
@@ -40,9 +82,16 @@ const ApproveRequestModal: React.FC<ApproveRequestModalProps> = ({
     if (!isSubmitting) {
       setAdminNotes('');
       setError(null);
+      setIsEditing(false);
       onClose();
     }
   };
+
+  const hasChanges = editedDetails.company_name !== request.company_name ||
+    editedDetails.company_website !== request.company_website ||
+    editedDetails.industry !== request.industry ||
+    editedDetails.company_size !== request.company_size ||
+    JSON.stringify(editedDetails.email_domains) !== JSON.stringify(request.email_domains);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -77,16 +126,106 @@ const ApproveRequestModal: React.FC<ApproveRequestModalProps> = ({
           )}
 
           <div className="mb-4">
-            <p className="text-gray-700 mb-2">
-              You are about to approve the request to add:
-            </p>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="font-bold text-gray-900 text-lg mb-1">{request.company_name}</p>
-              <p className="text-sm text-gray-600">{request.company_website}</p>
-              <p className="text-sm text-gray-600 mt-1">
-                {request.industry} • {request.company_size}
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-gray-700">
+                {isEditing ? 'Edit company details before approval:' : 'You are about to approve the request to add:'}
               </p>
+              <button
+                onClick={() => setIsEditing(!isEditing)}
+                disabled={isSubmitting}
+                className="flex items-center space-x-1 text-sm text-blue-600 hover:text-blue-700 font-medium disabled:opacity-50"
+              >
+                <Edit2 className="w-4 h-4" />
+                <span>{isEditing ? 'Cancel Edit' : 'Edit Details'}</span>
+              </button>
             </div>
+
+            {!isEditing ? (
+              <div className={`border rounded-lg p-4 ${
+                hasChanges ? 'bg-yellow-50 border-yellow-300' : 'bg-blue-50 border-blue-200'
+              }`}>
+                {hasChanges && (
+                  <div className="mb-2 flex items-center space-x-2 text-yellow-800">
+                    <AlertCircle className="w-4 h-4" />
+                    <p className="text-sm font-medium">Modified from original request</p>
+                  </div>
+                )}
+                <p className="font-bold text-gray-900 text-lg mb-1">{editedDetails.company_name}</p>
+                <p className="text-sm text-gray-600">{editedDetails.company_website}</p>
+                <p className="text-sm text-gray-600 mt-1">
+                  {editedDetails.industry} • {editedDetails.company_size}
+                </p>
+                {editedDetails.email_domains.length > 0 && (
+                  <p className="text-sm text-gray-600 mt-1">
+                    Email domains: {editedDetails.email_domains.join(', ')}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-4 bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Company Name
+                  </label>
+                  <input
+                    type="text"
+                    value={editedDetails.company_name}
+                    onChange={(e) => setEditedDetails({...editedDetails, company_name: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    disabled={isSubmitting}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Company Website
+                  </label>
+                  <input
+                    type="url"
+                    value={editedDetails.company_website}
+                    onChange={(e) => setEditedDetails({...editedDetails, company_website: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    disabled={isSubmitting}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Industry
+                  </label>
+                  <IndustrySelect
+                    value={editedDetails.industry}
+                    onChange={(value) => setEditedDetails({...editedDetails, industry: value})}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Company Size
+                  </label>
+                  <select
+                    value={editedDetails.company_size}
+                    onChange={(e) => setEditedDetails({...editedDetails, company_size: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    disabled={isSubmitting}
+                  >
+                    {companySizes.map(size => (
+                      <option key={size.value} value={size.value}>{size.label}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email Domains
+                  </label>
+                  <DomainInput
+                    domains={editedDetails.email_domains}
+                    onChange={(domains) => setEditedDetails({...editedDetails, email_domains: domains})}
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
