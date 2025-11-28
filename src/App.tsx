@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ToastContainer from './components/ToastContainer';
+import AdminRoute from './components/AdminRoute';
 import { useToast } from './hooks/useToast';
 
 const LandingPage = lazy(() => import('./pages/LandingPage'));
@@ -40,8 +41,16 @@ function App() {
                 <Route path="/submit-review" element={<SubmitReviewPage />} />
                 <Route path="/request-company" element={<RequestCompanyPage />} />
                 <Route path="/company-requested" element={<CompanyRequestedPage />} />
-                <Route path="/admin/company-requests" element={<AdminCompanyRequestsPage />} />
-                <Route path="/admin/companies" element={<AdminCompaniesPage />} />
+                <Route path="/admin/company-requests" element={
+                  <AdminRoute>
+                    <AdminCompanyRequestsPage />
+                  </AdminRoute>
+                } />
+                <Route path="/admin/companies" element={
+                  <AdminRoute>
+                    <AdminCompaniesPage />
+                  </AdminRoute>
+                } />
                 <Route path="/notification/:token" element={<NotificationPage />} />
                 <Route path="/company/:companyId" element={<CompanyProfilePage />} />
                 <Route path="/companies" element={<CompaniesPage />} />

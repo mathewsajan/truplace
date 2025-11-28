@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { isAdmin, getCurrentUser } from '../lib/supabase';
+import { isAdmin, supabase } from '../lib/supabase';
 import { Shield, AlertTriangle } from 'lucide-react';
 
 interface AdminRouteProps {
@@ -15,13 +15,27 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
 
   useEffect(() => {
     checkAdminAccess();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        checkAdminAccess();
+      } else if (!loading) {
+        setError('You must be logged in to access this page');
+        setAuthorized(false);
+        setTimeout(() => navigate('/'), 2000);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const checkAdminAccess = async () => {
     try {
-      const user = await getCurrentUser();
+      const { data: { session } } = await supabase.auth.getSession();
 
-      if (!user) {
+      if (!session?.user) {
         setError('You must be logged in to access this page');
         setLoading(false);
         setTimeout(() => navigate('/'), 2000);
