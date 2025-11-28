@@ -79,11 +79,14 @@ export interface CompanyStats {
 }
 
 // Authentication helpers
-export const sendMagicLink = async (email: string) => {
+export const sendMagicLink = async (email: string, redirectTo?: string) => {
+  const defaultRedirect = `${import.meta.env.VITE_APP_URL}/submit-review`;
+  const redirectUrl = redirectTo || defaultRedirect;
+
   const { data, error } = await supabase.auth.signInWithOtp({
     email,
     options: {
-      emailRedirectTo: `${import.meta.env.VITE_APP_URL}/submit-review`,
+      emailRedirectTo: redirectUrl,
     },
   });
 

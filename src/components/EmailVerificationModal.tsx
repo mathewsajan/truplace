@@ -78,15 +78,18 @@ const EmailVerificationModal: React.FC<EmailVerificationModalProps> = ({ isOpen,
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!isValid || !email) return;
 
     setIsLoading(true);
-    
+
     try {
-      // Simulate API call
-      await sendMagicLink(email);
-      
+      const redirectUrl = isAdminMode
+        ? `${import.meta.env.VITE_APP_URL}/admin/company-requests`
+        : undefined;
+
+      await sendMagicLink(email, redirectUrl);
+
       setIsSuccess(true);
       setErrorMessage('');
     } catch (error) {
